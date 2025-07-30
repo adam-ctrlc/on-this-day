@@ -84,16 +84,15 @@ on-this-day/
 ├── public/                     # Static assets
 ├── src/
 │   ├── app/
-│   │   ├── api/                # API routes
-│   │   │   └── v1/
-│   │   │       └── landing/
-│   │   │           └── route.js  # API endpoint for historical data
-│   │   ├── favicon.ico         # Favicon
-│   │   ├── globals.css         # Global styles
-│   │   ├── layout.jsx          # Root layout
-│   │   ├── page.jsx            # Main application page
-│   │   └── QueryProvider.jsx   # React Query provider
-│   └── components/             # Reusable UI components
+│       ├── api/                # API routes
+│       │   └── v1/
+│       │       └── landing/
+│       │           └── route.js  # API endpoint for historical data
+│       ├── favicon.ico         # Favicon
+│       ├── globals.css         # Global styles
+│       ├── layout.jsx          # Root layout
+│       ├── page.jsx            # Main application page
+│       └── QueryProvider.jsx   # React Query provider
 ├── .eslintrc.json              # ESLint configuration
 ├── next.config.js              # Next.js configuration
 ├── package.json                # Project dependencies and scripts
