@@ -98,7 +98,6 @@ on-this-day/
 ├── next.config.js              # Next.js configuration
 ├── package.json                # Project dependencies and scripts
 ├── postcss.config.js           # PostCSS configuration
-├── tailwind.config.js          # Tailwind CSS configuration
 └── README.md                   # Project README
 ```
 
