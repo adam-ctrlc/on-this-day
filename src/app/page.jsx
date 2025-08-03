@@ -1,8 +1,7 @@
 "use client";
 
-import Image from "next/image";
-import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useQuery as useApolloQuery } from "@apollo/client";
+import { useState } from "react";
 import {
   FaSearch,
   FaChevronDown,
@@ -10,6 +9,7 @@ import {
   FaArrowUp,
   FaArrowDown,
 } from "react-icons/fa";
+import { GET_ON_THIS_DAY } from "@/services/queries";
 
 const renderDescriptionWithLinks = (description, wikipediaLinks) => {
   let renderedDescription = description;
@@ -86,56 +86,22 @@ export default function Home() {
     selectedMonth !== currentDateForQuery.month ||
     parseInt(selectedDay) !== parseInt(currentDateForQuery.day);
 
-  const handleFetchData = async () => {
-    try {
-      const monthIndex = monthNames.indexOf(currentDateForQuery.month) + 1;
-      const dayInt = parseInt(currentDateForQuery.day);
+  const monthIndex = monthNames.indexOf(currentDateForQuery.month) + 1;
+  const dayInt = parseInt(currentDateForQuery.day);
 
-      const isToday =
-        monthIndex === today.getMonth() + 1 && dayInt === today.getDate();
-
-      let response;
-      if (isToday) {
-        console.log("Fetching today's data via GET.");
-        response = await fetch("/api/v1/landing");
-      } else {
-        console.log(
-          "Fetching data for month:",
-          monthIndex,
-          "day:",
-          dayInt,
-          "via POST."
-        );
-        response = await fetch("/api/v1/landing", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ month: monthIndex, day: dayInt }),
-        });
-      }
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log("API response data:", data);
-      return data;
-    } catch (err) {
-      console.error("Error fetching data:", err);
-      throw new Error(`Failed to fetch data: ${err.message}`);
-    }
-  };
-
-  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: [
-      "onThisDayData",
-      currentDateForQuery.month,
-      currentDateForQuery.day,
-    ],
-    queryFn: handleFetchData,
-    enabled: true,
+  const {
+    data,
+    loading: isLoading,
+    error,
+    refetch,
+  } = useApolloQuery(GET_ON_THIS_DAY, {
+    variables: {
+      month: monthIndex,
+      day: dayInt,
+    },
   });
+
+  const isError = !!error;
 
   const filterData = (items) => {
     console.log("Filtering with searchTerm:", searchTerm, "on items:", items);
@@ -204,14 +170,14 @@ export default function Home() {
     );
   }
 
-  const filteredEvents = data?.events?.events
-    ? filterData(data.events.events)
+  const filteredEvents = data?.onThisDay?.events?.events
+    ? filterData(data.onThisDay.events.events)
     : [];
-  const filteredBirths = data?.births?.births
-    ? filterData(data.births.births)
+  const filteredBirths = data?.onThisDay?.births?.births
+    ? filterData(data.onThisDay.births.births)
     : [];
-  const filteredDeaths = data?.deaths?.deaths
-    ? filterData(data.deaths.deaths)
+  const filteredDeaths = data?.onThisDay?.deaths?.deaths
+    ? filterData(data.onThisDay.deaths.deaths)
     : [];
 
   const sortedEvents = sortData(filteredEvents, eventSortOrder);
@@ -257,12 +223,18 @@ export default function Home() {
           onChange={(e) => setSelectedDay(e.target.value)}
         />
         <button
-          onClick={() =>
+          onClick={() => {
             setCurrentDateForQuery({
               month: selectedMonth,
               day: selectedDay,
-            })
-          }
+            });
+            const newMonthIndex = monthNames.indexOf(selectedMonth) + 1;
+            const newDayInt = parseInt(selectedDay);
+            refetch({
+              month: newMonthIndex,
+              day: newDayInt,
+            });
+          }}
           className={`w-full sm:w-1/4 p-3 rounded-lg transition-colors duration-200 focus:outline-none ${
             hasPendingChanges
               ? "bg-blue-400 text-white border border-blue-600"
