@@ -53,7 +53,7 @@ const happenings = ["events", "births", "deaths"];
 
 async function fetchOnThisDayData(month, day) {
   const allData = {};
-  for (const happening of happenings) {
+  for (const happening of happenings) { 
     const baseUrl = `https://byabbe.se/on-this-day/${month}/${day}/${happening}.json`;
     try {
       const response = await fetch(baseUrl);
